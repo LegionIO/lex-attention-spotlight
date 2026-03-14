@@ -98,8 +98,8 @@ RSpec.describe Legion::Extensions::AttentionSpotlight::Helpers::AttentionTarget 
     it 'returns a hash with all expected keys' do
       h = target.to_h
       expect(h.keys).to include(:id, :label, :domain, :salience, :relevance,
-                                 :in_spotlight, :in_periphery, :capture_count,
-                                 :compelling, :salient, :created_at, :last_attended_at)
+                                :in_spotlight, :in_periphery, :capture_count,
+                                :compelling, :salient, :created_at, :last_attended_at)
     end
 
     it 'rounds salience to 10 decimal places' do

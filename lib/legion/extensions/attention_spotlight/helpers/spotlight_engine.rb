@@ -16,9 +16,7 @@ module Legion
           end
 
           def register_target(label:, domain:, salience: 0.5, relevance: 0.5)
-            if @targets.size >= Constants::MAX_TARGETS
-              return { registered: false, reason: :max_targets_reached, limit: Constants::MAX_TARGETS }
-            end
+            return { registered: false, reason: :max_targets_reached, limit: Constants::MAX_TARGETS } if @targets.size >= Constants::MAX_TARGETS
 
             target = AttentionTarget.new(label: label, domain: domain,
                                          salience: salience, relevance: relevance)
@@ -32,9 +30,8 @@ module Legion
 
             clear_spotlight_flags
             @spotlight.focus_on!(target_id)
-            target.in_spotlight  = true
+            target.in_spotlight = true
             target.last_attended_at = Time.now.utc
-            mark_spotlight_coverage
             { focused: true, target_id: target_id, mode: @spotlight.mode, intensity: @spotlight.intensity }
           end
 
@@ -69,9 +66,9 @@ module Legion
 
           def check_capture
             candidate = @targets.values
-                                 .reject { |t| t.in_spotlight }
-                                 .select(&:compelling?)
-                                 .max_by(&:salience)
+                                .reject(&:in_spotlight)
+                                .select(&:compelling?)
+                                .max_by(&:salience)
             return { captured: false } unless candidate
 
             clear_spotlight_flags
@@ -90,8 +87,7 @@ module Legion
           end
 
           def targets_in_spotlight
-            covered = covered_target_ids
-            covered.filter_map { |id| @targets[id] }
+            @targets.values.select(&:in_spotlight)
           end
 
           def peripheral_alerts
@@ -104,11 +100,11 @@ module Legion
 
           def spotlight_report
             {
-              spotlight:       @spotlight.to_h,
-              in_spotlight:    targets_in_spotlight.map(&:to_h),
-              in_periphery:    peripheral_alerts.map(&:to_h),
-              most_salient:    most_salient.map(&:to_h),
-              total_targets:   @targets.size,
+              spotlight:        @spotlight.to_h,
+              in_spotlight:     targets_in_spotlight.map(&:to_h),
+              in_periphery:     peripheral_alerts.map(&:to_h),
+              most_salient:     most_salient.map(&:to_h),
+              total_targets:    @targets.size,
               peripheral_count: @peripheral.size
             }
           end

@@ -13,7 +13,7 @@ module Legion
         include Runners::AttentionSpotlight
 
         def initialize(engine: nil, **)
-          @engine = engine
+          @engine = engine || Helpers::SpotlightEngine.new
         end
 
         private
